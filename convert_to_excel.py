@@ -177,7 +177,7 @@ def build_sheet1_overview(wb, models):
     ws.title = "综合性能对比"
 
     # 标题
-    ws.merge_cells("A1:N1")
+    ws.merge_cells("A1:O1")
     title_cell = ws.cell(row=1, column=1, value="模型综合性能对比")
     apply_cell_style(title_cell, font=TITLE_FONT, alignment=Alignment(horizontal="center", vertical="center"))
     title_cell.border = Border()
@@ -187,9 +187,6 @@ def build_sheet1_overview(wb, models):
         "模型名称",
         "GFLOPs",
         "参数量",
-        "前处理时间(s)",
-        "推理时间(s)",
-        "后处理时间(s)",
         "FPS(总)",
         "FPS(推理)",
         "模型大小",
@@ -199,6 +196,9 @@ def build_sheet1_overview(wb, models):
         "mAP50(avg)",
         "mAP75(avg)",
         "mAP50-95(avg)",
+        "mAP50(Platelets)",
+        "mAP50(RBC)",
+        "mAP50(WBC)",
     ]
     header_row = 3
     set_header_row(ws, header_row, 1, headers)
@@ -218,9 +218,6 @@ def build_sheet1_overview(wb, models):
             model_name,
             m.get("gflops"),
             m.get("parameters"),
-            m.get("preprocess_time"),
-            m.get("inference_time"),
-            m.get("postprocess_time"),
             m.get("fps_total"),
             m.get("fps_inference"),
             m.get("model_size"),
@@ -230,6 +227,9 @@ def build_sheet1_overview(wb, models):
             all_data.get("map50"),
             all_data.get("map75"),
             all_data.get("map50_95"),
+            m["classes"].get("Platelets", {}).get("map50"),
+            m["classes"].get("RBC", {}).get("map50"),
+            m["classes"].get("WBC", {}).get("map50"),
         ]
         for j, val in enumerate(data):
             cell = ws.cell(row=row, column=j + 1, value=val)
@@ -241,22 +241,22 @@ def build_sheet1_overview(wb, models):
     data_end = data_start + len(models) - 1
 
     # 高亮最优/最差
-    # GFLOPs (越小越好), 参数量(越小越好), 时间(越小越好), FPS(越大越好), 精度(越大越好)
+    # GFLOPs/参数量/模型大小(越小越好), FPS/精度(越大越好)
     higher_better = {
         2: False,   # GFLOPs
         3: False,   # 参数量 (string, skip)
-        4: False,   # 前处理时间
-        5: False,   # 推理时间
-        6: False,   # 后处理时间
-        7: True,    # FPS(总)
-        8: True,    # FPS(推理)
-        9: False,   # 模型大小 (string, skip)
-        10: True,   # Precision
-        11: True,   # Recall
-        12: True,   # F1
-        13: True,   # mAP50
-        14: True,   # mAP75
-        15: True,   # mAP50-95
+        4: True,    # FPS(总)
+        5: True,    # FPS(推理)
+        6: False,   # 模型大小 (string, skip)
+        7: True,    # Precision
+        8: True,    # Recall
+        9: True,    # F1
+        10: True,   # mAP50
+        11: True,   # mAP75
+        12: True,   # mAP50-95
+        13: True,   # mAP50(Platelets)
+        14: True,   # mAP50(RBC)
+        15: True,   # mAP50(WBC)
     }
     for col, higher in higher_better.items():
         highlight_best_worst(ws, data_start, data_end, col, higher_is_better=higher)
