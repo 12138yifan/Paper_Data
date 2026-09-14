@@ -5,7 +5,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, numbers
 from openpyxl.utils import get_column_letter
 
-INPUT_DIR = r"e:\data_comp"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+INPUT_DIR = os.path.join(SCRIPT_DIR, "work")
 
 
 def parse_txt(filepath, model_name=None):
